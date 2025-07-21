@@ -102,4 +102,3 @@ end)
 vim.keymap.set('n', "tt", "<cmd>TodoQuickFix<cr>")
 
 
-require("dapui").setup()
