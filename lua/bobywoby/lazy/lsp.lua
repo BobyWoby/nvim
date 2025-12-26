@@ -28,6 +28,20 @@ return {
         )
         local lspconfig = require("lspconfig")
         local mason = require("mason")
+        vim.lsp.config('clangd', {
+
+            on_attach = on_attach, -- Your on_attach function for keybindings, etc.
+            flags = lsp_flags,    -- Your LSP flags if you have them
+            settings = {
+                -- Server-specific settings can go here
+            },
+            cmd = {
+                "clangd",          -- Or the full path if you're not relying on PATH
+                "--query-driver=/usr/bin/gcc", -- Example argument: query a specific compiler
+                "--log=verbose",   -- Example argument: enable verbose logging
+                -- Add more arguments as needed
+            },
+        })
 
         mason.setup()
         require("mason-lspconfig").setup {
