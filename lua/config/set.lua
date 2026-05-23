@@ -5,8 +5,6 @@ vim.opt.tabstop = 4
 vim.opt.softtabstop = 4
 vim.opt.shiftwidth = 4
 vim.opt.expandtab = true
-
-
 vim.opt.smartindent = true
 
 vim.opt.swapfile = false
@@ -25,11 +23,10 @@ vim.opt.updatetime = 100
 vim.opt.colorcolumn = "80"
 vim.g.mapleader = " "
 
-
 vim.opt.wrap = false
 
-
 vim.schedule(function()
-    vim.o.clipboard = 'unnamedplus'
+	vim.o.clipboard = "unnamedplus"
 end)
 
+-- vim.opt.guicursor = "i-ci-ve:ver25"
