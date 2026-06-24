@@ -32,46 +32,51 @@ return {
 		end
 
 		-- Keymaps and buffer-local options applied on attach
-		local on_attach = function(client, bufnr)
-			local map = function(keys, func, desc)
-				vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
-			end
+		vim.api.nvim_create_autocmd("LspAttach", {
+			group = vim.api.nvim_create_augroup("my-lsp-attach", { clear = true }),
+			callback = function(event)
+				local bufnr = event.buf
+				local client = vim.lsp.get_client_by_id(event.data.client_id)
+				local map = function(keys, func, desc)
+					vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
+				end
 
-			-- map("gd", vim.lsp.buf.definition, "Goto Definition")
-			-- map("gr", vim.lsp.buf.references, "Goto References")
-			-- map("gI", vim.lsp.buf.implementation, "Goto Implementation")
-			-- map("gD", vim.lsp.buf.declaration, "Goto Declaration")
-			map("gy", vim.lsp.buf.type_definition, "Type Definition")
-			map("K", vim.lsp.buf.hover, "Hover")
-			map("<leader>rn", vim.lsp.buf.rename, "Rename")
-			map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
-			map("<leader>cd", vim.diagnostic.open_float, "Line Diagnostics")
-			map("[d", vim.diagnostic.goto_prev, "Previous Diagnostic")
-			map("]d", vim.diagnostic.goto_next, "Next Diagnostic")
+				-- map("gd", vim.lsp.buf.definition, "Goto Definition")
+				-- map("gr", vim.lsp.buf.references, "Goto References")
+				-- map("gI", vim.lsp.buf.implementation, "Goto Implementation")
+				-- map("gD", vim.lsp.buf.declaration, "Goto Declaration")
+				map("gy", vim.lsp.buf.type_definition, "Type Definition")
+				map("K", vim.lsp.buf.hover, "Hover")
+				map("<leader>rn", vim.lsp.buf.rename, "Rename")
+				map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
+				map("<leader>cd", vim.diagnostic.open_float, "Line Diagnostics")
+				map("[d", vim.diagnostic.goto_prev, "Previous Diagnostic")
+				map("]d", vim.diagnostic.goto_next, "Next Diagnostic")
 
-			-- Highlight references under cursor
-			if client.server_capabilities.documentHighlightProvider then
-				local hl_group = vim.api.nvim_create_augroup("lsp_document_highlight", { clear = false })
-				vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-					group = hl_group,
-					buffer = bufnr,
-					callback = vim.lsp.buf.document_highlight,
-				})
-				vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
-					group = hl_group,
-					buffer = bufnr,
-					callback = vim.lsp.buf.clear_references,
-				})
-			end
+				-- Highlight references under cursor
+				if client and client.server_capabilities.documentHighlightProvider then
+					local hl_group = vim.api.nvim_create_augroup("lsp_document_highlight", { clear = false })
+					vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+						group = hl_group,
+						buffer = bufnr,
+						callback = vim.lsp.buf.document_highlight,
+					})
+					vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+						group = hl_group,
+						buffer = bufnr,
+						callback = vim.lsp.buf.clear_references,
+					})
+				end
 
-			-- Inlay hints (Neovim 0.10+)
-			if client.supports_method("textDocument/inlayHint") then
-				vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
-				map("<leader>uh", function()
-					vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
-				end, "Toggle Inlay Hints")
-			end
-		end
+				-- Inlay hints (Neovim 0.10+)
+				if client and client.supports_method("textDocument/inlayHint") then
+					vim.lsp.inlay_hint.enable(true, { bufnr = bufnr })
+					map("<leader>uh", function()
+						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = bufnr }), { bufnr = bufnr })
+					end, "Toggle Inlay Hints")
+				end
+			end,
+		})
 
 		-- Capabilities (nvim-cmp integration; harmless if you don't use cmp)
 		local capabilities = vim.lsp.protocol.make_client_capabilities()
@@ -158,7 +163,6 @@ return {
 				function(server_name)
 					local server = servers[server_name] or {}
 					server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-					server.on_attach = on_attach
 					require("lspconfig")[server_name].setup(server)
 				end,
 			},
