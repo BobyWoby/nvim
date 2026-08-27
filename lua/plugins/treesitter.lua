@@ -1,5 +1,5 @@
 return {
 	"nvim-treesitter/nvim-treesitter",
-	branch = "main",
+	branch = "master",
 	build = ":TSUpdate",
 }
