@@ -1,6 +1,7 @@
 return {
 	"nvim-telescope/telescope.nvim",
-	branch = "0.1.x",
+	-- Use Neovim's built-in Treesitter API, compatible with nvim-treesitter main.
+	branch = "master",
 	cmd = "Telescope",
 	dependencies = {
 		"nvim-lua/plenary.nvim",
